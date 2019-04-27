@@ -1,0 +1,96 @@
+C51 COMPILER V9.01   SMG                                                                   04/27/2019 19:32:58 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SMG
+OBJECT MODULE PLACED IN SMG.obj
+COMPILER INVOKED BY: D:\keil4\C51\BIN\C51.EXE DisplayGroup\SMG.c OMF2 BROWSE INCDIR(.\DisplayGroup;.\MainGroup) DEBUG PR
+                    -INT(.\SMG.lst) OBJECT(SMG.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "SMG.h"
+   3          
+   4          uint __locketi = 0;
+   5          
+   6          uchar code SMG_CODE[17]={0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,0
+             -x00};
+   7          uchar SMG_ROM[8]={0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+   8          
+   9          /***************************************************************************************************    
+  10          函数名称：      delay
+  11          功能描述：      数码管延时（强烈不建议使用，会影响程序主时序）
+  12          维护记录：  2019-4-27
+  13          ***************************************************************************************************/
+  14          void delay(uint time)         //int型数据为16位,所以最大值为65535            
+  15           {
+  16   1        uint  i,j;             //定义变量i,j,用于循环语句 
+  17   1        for(i=0;i<time;i++)    //for循环,循环50*time次
+  18   1           for(j=0;j<50;j++);  //for循环,循环50次
+  19   1       }
+  20          /***************************************************************************************************    
+  21          函数名称：      SetData
+  22          功能描述：      设置locketi位置上的数据Data
+  23          参数说明：      locketi  int  位置
+  24                                  Data    int             数据（0~15分别对应0~F，16为空）
+  25          维护记录：  2019-4-27
+  26          ***************************************************************************************************/
+  27          void SetData(int locketi, int Data)
+  28          {
+  29   1          SMG_ROM[locketi] = SMG_CODE[Data];
+  30   1      }
+  31          /***************************************************************************************************    
+  32          函数名称：      SMG_scan
+  33          功能描述：      数码管刷新（一般交由定时器系统调用）
+  34          参数说明：      无
+  35          维护记录：  2019-4-27
+  36          ***************************************************************************************************/
+  37          void SMG_scan()
+  38          {
+  39   1              SetLocket(__locketi);   
+  40   1          SMG_PORT=SMG_ROM[__locketi];        
+  41   1              DATALock=1;
+  42   1              DATALock=0;
+  43   1      
+  44   1              __locketi++;                   //位置加1
+  45   1              if(__locketi>7)
+  46   1              {
+  47   2                      __locketi = 0;
+  48   2              }       
+  49   1          delay(10);               //延时保持一下,延时过大会闪动，延时过小会有暗影    
+  50   1      }
+  51          /***************************************************************************************************    
+  52          函数名称：      SetLocket
+  53          功能描述：      数码管位选（仅由数码管刷新函数调用）
+C51 COMPILER V9.01   SMG                                                                   04/27/2019 19:32:58 PAGE 2   
+
+  54          参数说明：      locketi int 数码管当前刷新位置
+  55          维护记录：  2019-4-27
+  56          ***************************************************************************************************/
+  57          void SetLocket(int locketi)
+  58          {
+  59   1              uchar Locate; 
+  60   1              Locate= LOC<<locketi;                            //左移i位
+  61   1              SMG_PORT=~Locate;                //由于共阴，低电平来选通某1位，所以需取反  
+  62   1              LocateLock=1;                                            //锁存位
+  63   1          LocateLock=0;                    //断开锁存,位选573的Q7~Q0仍保持                    
+  64   1      }
+  65          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    119    ----
+   CONSTANT SIZE    =     17    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

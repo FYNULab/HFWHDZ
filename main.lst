@@ -1,0 +1,80 @@
+C51 COMPILER V9.01   MAIN                                                                  04/27/2019 19:32:58 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.obj
+COMPILER INVOKED BY: D:\keil4\C51\BIN\C51.EXE MainGroup\main.c OMF2 BROWSE INCDIR(.\DisplayGroup;.\MainGroup) DEBUG PRIN
+                    -T(.\main.lst) OBJECT(main.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "timer.h"
+   3          #include "SMG.h"
+   4          
+   5          uchar temp;          //定义变量
+   6          
+   7          void main()
+   8          {
+   9   1              TimerInterruptInit();
+  10   1              SetData(0,1);
+  11   1              SetData(1,2);
+  12   1              SetData(2,3);
+  13   1              SetData(3,4);
+  14   1              SetData(4,5);
+  15   1              SetData(5,6);
+  16   1              SetData(6,7);
+  17   1              SetData(7,16);
+  18   1                while(1)
+  19   1                {
+  20   2                       SMG_scan();
+  21   2                }
+  22   1      
+  23   1      }
+  24          
+  25          
+  26          void TimerInterruptInit()
+  27          {
+  28   1         TMOD=0x01;    //0b00000001  用的是定时器0，工作在方式1（16位寄存器）//要实现定时50ms,(65536-T0)x12/1200
+             -0000=0.05s得T0=15536即0x3cb0
+  29   1         TH0=0x3c;     //装定时器初值高8位
+  30   1         TL0=0xb0;     //装定时器初值低8位
+  31   1         TR0=1;        //启动定时器0
+  32   1         ET0=1;        //开定时器0中断
+  33   1         EA=1;         //开总中断
+  34   1      }
+  35          
+  36          
+  37          timer0() interrupt 1 using 1
+  38          {
+  39   1        TH0=0x3c;         //重置定时器初值
+  40   1        TL0=0xb0;
+  41   1        if(temp>=10)      //满20次，即20次*50ms=1s
+  42   1         {
+  43   2                      temp = 0x00;
+  44   2         }
+  45   1        else
+  46   1         {
+  47   2                      temp++;        //每进一次中断，temp加1
+  48   2         }
+  49   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    143    ----
+C51 COMPILER V9.01   MAIN                                                                  04/27/2019 19:32:58 PAGE 2   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
